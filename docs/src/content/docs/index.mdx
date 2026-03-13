@@ -1,11 +1,11 @@
 ---
 title: agent-inbox
-description: DNS for AI messages. Give your website an inbox that any agent can reach — and respond back.
+description: The open protocol that makes every website reachable by AI agents.
 template: splash
 hero:
-  tagline: A simple standard that makes every website message-addressable with bidirectional AI agent communication.
+  tagline: "robots.txt told crawlers what to read. agent-inbox tells agents how to talk."
   actions:
-    - text: Get Started
+    - text: Read the Proposal
       link: /guides/introduction/
       icon: right-arrow
     - text: View on GitHub
@@ -14,21 +14,49 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## The web has a new shape
+
+Every major shift in the web created a new surface for interaction. HTML gave us pages. APIs gave us data. `robots.txt` gave us crawlability. Each was a small file that changed everything because it lowered the cost of the *first* interaction to zero.
+
+**agent-inbox** is that file for the agentic web. A single discovery document at `/.well-known/agent.json` that turns any website from a destination humans visit into a service agents can talk to — and get answers from.
+
+<CardGrid>
+  <Card title="For website owners" icon="laptop">
+    You already have email routing. agent-inbox just adds a front door that AI agents can find. Define actions, set parameters, get messages routed to the right inbox. No API to build, no integration to maintain.
+  </Card>
+  <Card title="For agent builders" icon="rocket">
+    Stop scraping contact pages. Discover what any website accepts, call actions with validated parameters, and get structured responses back — all through one standard protocol.
+  </Card>
+  <Card title="For platforms" icon="setting">
+    A standard that reduces agent-to-website interaction from a bespoke integration problem to a convention. Less friction means more transactions. More transactions mean more value for everyone.
+  </Card>
+  <Card title="For the ecosystem" icon="random">
+    The harder it is for agents to interact with websites, the more the agentic web concentrates around a few large platforms. An open protocol keeps the web decentralized by keeping the cost of participation low.
+  </Card>
+</CardGrid>
+
+---
 
 ## How it works
 
-<CardGrid stagger>
-  <Card title="Discovery" icon="magnifier">
-    Agents discover your inbox via `/.well-known/agent.json` — actions, parameters, response schemas, and auth requirements.
-  </Card>
-  <Card title="Structured messaging" icon="puzzle">
-    Agents call actions directly with validated parameters. No AI classification needed.
-  </Card>
-  <Card title="AI classification" icon="star">
-    Free-form messages are classified by Workers AI and routed to the best matching action.
-  </Card>
-  <Card title="Bidirectional responses" icon="random">
-    Respond back to agents via the dashboard, API, or automated callbacks with structured data.
-  </Card>
+```
+AI Agent                          Your Website
+  |
+  +-- GET /.well-known/agent.json -------->  "What can I do here?"
+  |<-- actions, schemas, auth, modes ------
+  |
+  +-- POST /.agent/inbox ----------------->  "Process this refund"
+  |<-- { id, status: "routed" } -----------
+  |
+  +-- GET /.agent/inbox/:id -------------->  "Any response yet?"
+  |<-- { response: { refund_id, amount } }-
+```
+
+<CardGrid>
+  <LinkCard title="Read the full proposal" href="/guides/introduction/" description="Why this protocol needs to exist, what it changes, and where it fits." />
+  <LinkCard title="Quick start" href="/guides/quickstart/" description="Deploy in 5 minutes and start receiving agent messages." />
+  <LinkCard title="Integration guides" href="/integrations/claude/" description="Connect Claude, GPTs, LangChain, and more." />
+  <LinkCard title="Protocol reference" href="/protocol/discovery/" description="Discovery, messaging, responses, and callbacks." />
 </CardGrid>

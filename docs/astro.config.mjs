@@ -12,7 +12,7 @@ export default defineConfig({
 				{
 					label: 'Getting Started',
 					items: [
-						{ label: 'Introduction', slug: 'guides/introduction' },
+						{ label: 'Why agent-inbox', slug: 'guides/introduction' },
 						{ label: 'Quick Start', slug: 'guides/quickstart' },
 					],
 				},
@@ -23,6 +23,16 @@ export default defineConfig({
 						{ label: 'Sending Messages', slug: 'protocol/sending-messages' },
 						{ label: 'Responses', slug: 'protocol/responses' },
 						{ label: 'Callbacks', slug: 'protocol/callbacks' },
+					],
+				},
+				{
+					label: 'Integrations',
+					items: [
+						{ label: 'Claude (Anthropic)', slug: 'integrations/claude' },
+						{ label: 'OpenAI (GPTs & Assistants)', slug: 'integrations/openai' },
+						{ label: 'LangChain / LangGraph', slug: 'integrations/langchain' },
+						{ label: 'Vercel AI SDK', slug: 'integrations/vercel-ai' },
+						{ label: 'Any HTTP client', slug: 'integrations/generic' },
 					],
 				},
 				{
