@@ -14,7 +14,7 @@ import openai
 import httpx
 
 # Fetch discovery document
-discovery = httpx.get("https://example.com/.well-known/agent.json").json()
+discovery = httpx.get("https://agent-json.com/.well-known/agent.json").json()
 INBOX_URL = discovery["message_endpoint"]
 TOKEN = "your-bearer-token"
 
@@ -118,7 +118,7 @@ info:
   title: Website Inbox
   version: "1.0"
 servers:
-  - url: https://example.com
+  - url: https://agent-json.com
 paths:
   /.agent/inbox:
     post:

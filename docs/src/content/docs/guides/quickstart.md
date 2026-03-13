@@ -21,7 +21,7 @@ pnpm run deploy
 
 1. Open your deployed worker URL in a browser
 2. Go to the **Configuration** tab
-3. Set your **domain** (e.g. `charl.dev`) and **default email** (e.g. `hello@charl.dev`)
+3. Set your **domain** (e.g. `agent-json.com`) and **default email** (e.g. `hello@agent-json.com`)
 4. **Generate an auth token** — agents use this to authenticate
 5. **Add actions** — define callable actions with parameter schemas and optional response schemas
 
@@ -29,10 +29,10 @@ Example actions:
 
 | Action          | Email                     | Description                         |
 |-----------------|---------------------------|-------------------------------------|
-| `request_refund`| `refund@charl.dev`        | Request a refund for an order       |
-| `get_support`   | `support@charl.dev`       | Technical support and help          |
-| `partnership`   | `partnerships@charl.dev`  | Business partnership inquiries      |
-| `bug_report`    | `engineering@charl.dev`   | Bug reports and issues              |
+| `request_refund`| `refund@agent-json.com`        | Request a refund for an order       |
+| `get_support`   | `support@agent-json.com`       | Technical support and help          |
+| `partnership`   | `partnerships@agent-json.com`  | Business partnership inquiries      |
+| `bug_report`    | `engineering@agent-json.com`   | Bug reports and issues              |
 
 Messages that don't match any action route to your default email.
 

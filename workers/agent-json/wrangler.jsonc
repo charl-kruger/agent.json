@@ -35,5 +35,11 @@
   ],
   "observability": {
     "enabled": true
-  }
+  },
+  "routes": [
+    {
+      "pattern": "agent-json.com",
+      "custom_domain": true
+    }
+  ]
 }

@@ -10,7 +10,7 @@ description: How to respond to agents and how they retrieve responses.
 The website owner (or an automated system) can respond back to the agent:
 
 ```bash
-curl -X POST https://charl.dev/.agent/inbox/msg_abc123/respond \
+curl -X POST https://agent-json.com/.agent/inbox/msg_abc123/respond \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -56,7 +56,7 @@ Returns `201` with the response object:
 Agents poll this endpoint to check for responses:
 
 ```bash
-curl https://charl.dev/.agent/inbox/msg_abc123 \
+curl https://agent-json.com/.agent/inbox/msg_abc123 \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -66,7 +66,7 @@ curl https://charl.dev/.agent/inbox/msg_abc123 \
   "status": "responded",
   "action": "request_refund",
   "auto_reply": "We've received your refund request.",
-  "routed_to": "refund@charl.dev",
+  "routed_to": "refund@agent-json.com",
   "received_at": "2025-01-15T10:00:00.000Z",
   "response": {
     "id": "resp_xyz789",

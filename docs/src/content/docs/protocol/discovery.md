@@ -12,7 +12,7 @@ Any AI agent can discover your inbox actions with their parameter and response s
   "version": "1.0",
   "name": "Charl's Website",
   "description": "Personal website and business",
-  "message_endpoint": "https://charl.dev/.agent/inbox",
+  "message_endpoint": "https://agent-json.com/.agent/inbox",
   "authentication": {
     "type": "bearer",
     "header": "Authorization"

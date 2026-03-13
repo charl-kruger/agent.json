@@ -20,13 +20,13 @@ The simplest integration — useful for testing and shell scripts.
 ### Discover
 
 ```bash
-curl -s https://example.com/.well-known/agent.json | jq '.actions[].name'
+curl -s https://agent-json.com/.well-known/agent.json | jq '.actions[].name'
 ```
 
 ### Send a structured message
 
 ```bash
-curl -X POST https://example.com/.agent/inbox \
+curl -X POST https://agent-json.com/.agent/inbox \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -39,7 +39,7 @@ curl -X POST https://example.com/.agent/inbox \
 ### Poll for response
 
 ```bash
-curl -s https://example.com/.agent/inbox/MSG_ID \
+curl -s https://agent-json.com/.agent/inbox/MSG_ID \
   -H "Authorization: Bearer YOUR_TOKEN" | jq '.response'
 ```
 
@@ -48,7 +48,7 @@ curl -s https://example.com/.agent/inbox/MSG_ID \
 ```python
 import requests
 
-BASE = "https://example.com"
+BASE = "https://agent-json.com"
 TOKEN = "your-token"
 HEADERS = {"Authorization": f"Bearer {TOKEN}"}
 
@@ -85,7 +85,7 @@ for _ in range(10):
 ## JavaScript / TypeScript (fetch)
 
 ```typescript
-const BASE = "https://example.com";
+const BASE = "https://agent-json.com";
 const TOKEN = "your-token";
 
 // Discover
@@ -130,7 +130,7 @@ import (
 )
 
 func main() {
-    base := "https://example.com"
+    base := "https://agent-json.com"
     token := "your-token"
 
     // Send a message
@@ -160,7 +160,7 @@ require "net/http"
 require "json"
 require "uri"
 
-base = "https://example.com"
+base = "https://agent-json.com"
 token = "your-token"
 
 # Discover

@@ -12,7 +12,7 @@ Two modes of messaging are supported: **structured** (action call) and **free-fo
 The agent calls a specific action with validated parameters:
 
 ```bash
-curl -X POST https://charl.dev/.agent/inbox \
+curl -X POST https://agent-json.com/.agent/inbox \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -37,7 +37,7 @@ Routes directly — parameters are validated against the action's schema. Return
 The agent sends subject + body, and Workers AI classifies the intent:
 
 ```bash
-curl -X POST https://charl.dev/.agent/inbox \
+curl -X POST https://agent-json.com/.agent/inbox \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
@@ -76,6 +76,6 @@ curl -X POST https://charl.dev/.agent/inbox \
   "status": "routed",
   "action": "request_refund",
   "auto_reply": "We've received your refund request and will process it within 48 hours.",
-  "message": "Message routed via action \"request_refund\" to refund@charl.dev."
+  "message": "Message routed via action \"request_refund\" to refund@agent-json.com."
 }
 ```

@@ -15,7 +15,7 @@ from langchain_core.tools import StructuredTool
 from pydantic import create_model, Field
 
 # Fetch discovery document
-discovery = httpx.get("https://example.com/.well-known/agent.json").json()
+discovery = httpx.get("https://agent-json.com/.well-known/agent.json").json()
 INBOX_URL = discovery["message_endpoint"]
 TOKEN = "your-bearer-token"
 
@@ -143,7 +143,7 @@ def discover_inbox_tools(base_url: str, token: str) -> list[StructuredTool]:
     return tools
 
 # Usage: give an agent tools for any website
-tools = discover_inbox_tools("https://example.com", "token123")
+tools = discover_inbox_tools("https://agent-json.com", "token123")
 ```
 
 This means any LangChain agent can interact with any agent.json website with a single function call.

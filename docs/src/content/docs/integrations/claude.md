@@ -12,7 +12,7 @@ Claude can interact with any agent.json endpoint using [tool use](https://docs.a
 First, fetch the discovery document to learn what actions are available:
 
 ```bash
-curl https://example.com/.well-known/agent.json
+curl https://agent-json.com/.well-known/agent.json
 ```
 
 ### 2. Define tools from actions
@@ -24,7 +24,7 @@ import anthropic
 import httpx
 
 # Fetch discovery document
-discovery = httpx.get("https://example.com/.well-known/agent.json").json()
+discovery = httpx.get("https://agent-json.com/.well-known/agent.json").json()
 INBOX_URL = discovery["message_endpoint"]
 TOKEN = "your-bearer-token"
 

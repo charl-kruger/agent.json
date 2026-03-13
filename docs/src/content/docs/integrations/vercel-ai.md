@@ -14,11 +14,11 @@ import { generateText, tool } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
 
-const INBOX_URL = "https://example.com/.agent/inbox";
+const INBOX_URL = "https://agent-json.com/.agent/inbox";
 const TOKEN = "your-bearer-token";
 
 // Fetch discovery document
-const discovery = await fetch("https://example.com/.well-known/agent.json")
+const discovery = await fetch("https://agent-json.com/.well-known/agent.json")
   .then(r => r.json());
 
 // Helper to convert JSON Schema types to Zod
