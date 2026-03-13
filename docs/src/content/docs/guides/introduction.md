@@ -93,7 +93,9 @@ None of these require the website to build a custom API. They just need a discov
 
 ## The path forward
 
-agent.json is a reference implementation built on Cloudflare Workers. But the protocol — the discovery document at `/.well-known/agent.json`, the message endpoint at `/.agent/inbox`, the response mechanism — is designed to be implemented on any stack.
+agent.json is a protocol, not a platform. The discovery document at `/.well-known/agent.json`, the message endpoint at `/.agent/inbox`, the response mechanism — all of it is designed to be implemented on any stack. Express, Next.js, Django, Rails, Go, Cloudflare Workers, AWS Lambda, a static file server with a simple backend — if it serves HTTP, it can speak agent.json.
+
+We provide a [reference implementation](/guides/reference-app/) built on Cloudflare Workers to get started fast, but it's one implementation of the protocol, not the protocol itself.
 
 The value of this protocol is proportional to the number of websites that adopt it. Like `robots.txt`, like `sitemap.xml`, like `/.well-known/openid-configuration` — the power comes from the convention, not the implementation.
 

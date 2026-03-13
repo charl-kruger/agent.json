@@ -1,13 +1,15 @@
 ---
 title: Reference Application
-description: A production-ready agent.json implementation with AI classification, email routing, and a real-time dashboard.
+description: A production-ready agent.json implementation built on Cloudflare Workers — fork it or use it as a blueprint for your own.
 ---
 
-The `workers/agent-json` directory contains a complete, deployable implementation of the agent.json protocol. It's not a toy — it's the same application running at [agent-json.com](https://agent-json.com). You can fork it as-is or use it as a reference for building your own.
+agent.json is a platform-agnostic protocol. You can implement it on Vercel, AWS, a Rails app, a Go binary — anything that serves HTTP. The protocol is the standard; the infrastructure is your choice.
+
+This page documents the **reference implementation** in `workers/agent-json`, which happens to use Cloudflare Workers. It's the same application running at [agent-json.com](https://agent-json.com). Fork it to get started fast, or read it as a blueprint for building your own implementation on whatever stack you prefer.
 
 ## Architecture
 
-The app runs on Cloudflare Workers with a single [Durable Object](https://developers.cloudflare.com/durable-objects/) that holds all state in SQLite. No external database, no Redis, no queues — just one object per deployment with durable, transactional storage.
+This implementation uses Cloudflare Workers with a single [Durable Object](https://developers.cloudflare.com/durable-objects/) for state. The architecture choices here are specific to this implementation — the protocol itself has no opinion on your database, runtime, or hosting.
 
 ```
 Agent HTTP request
@@ -204,6 +206,18 @@ The reference app is designed to be forked. Common extensions:
 
 - **Add new actions** via the dashboard UI or by editing the Durable Object directly
 - **Custom email templates** — modify the `buildHtmlEmail()` and `buildTextEmail()` functions in `server.ts`
-- **Different AI models** — change `AI_MODEL` in `classify.ts` to any Workers AI model
+- **Different AI models** — change `AI_MODEL` in `classify.ts` to any model
 - **Additional response channels** — the respond endpoint accepts any `responded_by` value, so you can build automation that responds programmatically
 - **Webhook integrations** — use the callback mechanism to push responses to Slack, Discord, or any other service
+
+## Building your own implementation
+
+You don't need to use this reference app — or Cloudflare — to adopt agent.json. The protocol is three HTTP endpoints that any web server can implement:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /.well-known/agent.json` | Serve a JSON discovery document describing your actions |
+| `POST /.agent/inbox` | Accept incoming messages from agents |
+| `GET /.agent/inbox/:id` | Return message status and responses |
+
+The rest — how you store messages, classify intent, send emails, render a dashboard — is entirely up to you. A minimal implementation could be a single Express route, a Next.js API handler, a Django view, or a Go HTTP handler. See the [Protocol](/protocol/discovery/) docs for the complete spec.

@@ -3,12 +3,16 @@ title: Quick Start
 description: Deploy agent.json in minutes.
 ---
 
-## Prerequisites
+agent.json is an open protocol — you can implement it on any stack that serves HTTP. This quick start uses the **reference implementation**, which runs on Cloudflare Workers. If you'd rather build your own, see the [Protocol](/protocol/discovery/) docs for the full spec.
+
+## Deploy the reference implementation
+
+### Prerequisites
 
 - A [Cloudflare](https://cloudflare.com) account with a domain
 - The domain's email sending configured in Cloudflare Dashboard (Compute & AI > Email Service > Email Sending) — Cloudflare will add SPF and DKIM records automatically
 
-## Deploy
+### Deploy
 
 ```bash
 git clone https://github.com/charl-kruger/agent.json.git
@@ -56,5 +60,15 @@ curl -X POST https://your-domain.com/.agent/inbox \
 ```bash
 pnpm install
 pnpm run dev       # Start local dev server
-pnpm run deploy    # Build and deploy to Cloudflare
+pnpm run deploy    # Deploy to Cloudflare
 ```
+
+## Implement it yourself
+
+You don't need Cloudflare — or any specific platform — to adopt agent.json. The protocol is three HTTP endpoints:
+
+1. **`GET /.well-known/agent.json`** — serve a static JSON discovery document
+2. **`POST /.agent/inbox`** — accept messages and route them however you want
+3. **`GET /.agent/inbox/:id`** — return message status and responses
+
+You can implement these in Express, Next.js, Django, Rails, Go, or anything else that handles HTTP. The [Protocol](/protocol/discovery/) section documents every field, and the [Integration guides](/integrations/generic/) show how agents call these endpoints from any language.
