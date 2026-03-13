@@ -1,9 +1,9 @@
 ---
 title: Vercel AI SDK
-description: Use agent-inbox with the Vercel AI SDK's tool system.
+description: Use agent.json with the Vercel AI SDK's tool system.
 ---
 
-The Vercel AI SDK's `tool()` function works perfectly with agent-inbox actions. The parameter schemas are already JSON Schema objects — the same format the AI SDK expects.
+The Vercel AI SDK's `tool()` function works perfectly with agent.json actions. The parameter schemas are already JSON Schema objects — the same format the AI SDK expects.
 
 ## Setup
 
@@ -131,7 +131,7 @@ inboxTools["check_response"] = tool({
 
 ## Next.js route handler
 
-A complete Next.js API route that creates an agent-inbox-connected chat:
+A complete Next.js API route that creates an agent.json-connected chat:
 
 ```typescript
 // app/api/chat/route.ts

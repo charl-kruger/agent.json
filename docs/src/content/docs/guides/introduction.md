@@ -1,5 +1,5 @@
 ---
-title: "Why agent-inbox exists"
+title: "Why agent.json exists"
 description: A proposal for making every website message-addressable by AI agents.
 ---
 
@@ -21,11 +21,11 @@ The solution was a 25-line text file at a well-known path: `/robots.txt`. No com
 
 It worked not because it was technically impressive, but because it was **simple enough that everyone adopted it**. The cost of participation was near zero — add a text file to your root directory and you've opted in to a global protocol.
 
-`robots.txt` solved crawlability. **`agent-inbox` solves contactability.**
+`robots.txt` solved crawlability. **`agent.json` solves contactability.**
 
 ## The protocol
 
-agent-inbox proposes three things:
+agent.json proposes three things:
 
 ### 1. A discovery document
 
@@ -49,7 +49,7 @@ This dual mode is important. It means agents at *any level of sophistication* ca
 
 The agent sends a message. The website responds — with structured data, through the dashboard, or via HMAC-signed webhook callbacks. The agent gets a machine-readable answer it can act on.
 
-This closes the loop. Without responses, agent-inbox would be a fancy contact form. *With* responses, it becomes a transaction protocol.
+This closes the loop. Without responses, agent.json would be a fancy contact form. *With* responses, it becomes a transaction protocol.
 
 ## Why this matters more than it seems
 
@@ -73,11 +73,11 @@ A static website can participate by serving a JSON file with a single action. A 
 
 ### Email as the routing layer
 
-Rather than requiring websites to build new infrastructure, agent-inbox routes messages to email — something every business already has. This means adoption cost is near zero. You're not replacing your support system; you're adding an agent-accessible front door to it.
+Rather than requiring websites to build new infrastructure, agent.json routes messages to email — something every business already has. This means adoption cost is near zero. You're not replacing your support system; you're adding an agent-accessible front door to it.
 
 ### Bidirectional by default
 
-One-way messaging is a notification system. Two-way messaging is a transaction protocol. By including responses from day one — with structured data, polling, and signed callbacks — agent-inbox supports the complete lifecycle of an agent interaction.
+One-way messaging is a notification system. Two-way messaging is a transaction protocol. By including responses from day one — with structured data, polling, and signed callbacks — agent.json supports the complete lifecycle of an agent interaction.
 
 ## What this enables
 
@@ -93,10 +93,10 @@ None of these require the website to build a custom API. They just need a discov
 
 ## The path forward
 
-agent-inbox is a reference implementation built on Cloudflare Workers. But the protocol — the discovery document at `/.well-known/agent.json`, the message endpoint at `/.agent/inbox`, the response mechanism — is designed to be implemented on any stack.
+agent.json is a reference implementation built on Cloudflare Workers. But the protocol — the discovery document at `/.well-known/agent.json`, the message endpoint at `/.agent/inbox`, the response mechanism — is designed to be implemented on any stack.
 
 The value of this protocol is proportional to the number of websites that adopt it. Like `robots.txt`, like `sitemap.xml`, like `/.well-known/openid-configuration` — the power comes from the convention, not the implementation.
 
 We are at the beginning of the agentic web. The choices we make now about how agents and websites communicate will shape the next decade of the internet. An open, simple, decentralized protocol gives everyone a seat at the table.
 
-**That's what agent-inbox is for.**
+**That's what agent.json is for.**

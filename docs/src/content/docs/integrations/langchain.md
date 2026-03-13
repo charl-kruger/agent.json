@@ -1,9 +1,9 @@
 ---
 title: LangChain / LangGraph
-description: Use agent-inbox as a LangChain tool or LangGraph node.
+description: Use agent.json as a LangChain tool or LangGraph node.
 ---
 
-agent-inbox actions map naturally to LangChain tools. Each action becomes a `StructuredTool` with the parameter schema derived directly from the discovery document.
+agent.json actions map naturally to LangChain tools. Each action becomes a `StructuredTool` with the parameter schema derived directly from the discovery document.
 
 ## LangChain tools
 
@@ -23,7 +23,7 @@ TYPE_MAP = {"string": str, "number": float, "boolean": bool}
 
 
 def make_inbox_tool(action: dict) -> StructuredTool:
-    """Create a LangChain tool from an agent-inbox action."""
+    """Create a LangChain tool from an agent.json action."""
 
     # Build a Pydantic model from the action's parameter schema
     fields = {}
@@ -127,11 +127,11 @@ for msg in result["messages"]:
 
 ## Auto-discovery utility
 
-You can create a reusable utility that generates LangChain tools from any agent-inbox endpoint:
+You can create a reusable utility that generates LangChain tools from any agent.json endpoint:
 
 ```python
 def discover_inbox_tools(base_url: str, token: str) -> list[StructuredTool]:
-    """Auto-discover and create LangChain tools from an agent-inbox endpoint."""
+    """Auto-discover and create LangChain tools from an agent.json endpoint."""
     discovery = httpx.get(f"{base_url}/.well-known/agent.json").json()
     endpoint = discovery["message_endpoint"]
 
@@ -146,4 +146,4 @@ def discover_inbox_tools(base_url: str, token: str) -> list[StructuredTool]:
 tools = discover_inbox_tools("https://example.com", "token123")
 ```
 
-This means any LangChain agent can interact with any agent-inbox website with a single function call.
+This means any LangChain agent can interact with any agent.json website with a single function call.

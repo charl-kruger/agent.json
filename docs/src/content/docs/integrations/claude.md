@@ -1,9 +1,9 @@
 ---
 title: Claude (Anthropic)
-description: Connect Claude to agent-inbox using tool use.
+description: Connect Claude to agent.json using tool use.
 ---
 
-Claude can interact with any agent-inbox endpoint using [tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use). Define the inbox's actions as Claude tools, and Claude will call them with structured parameters.
+Claude can interact with any agent.json endpoint using [tool use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use). Define the inbox's actions as Claude tools, and Claude will call them with structured parameters.
 
 ## Setup
 
@@ -58,7 +58,7 @@ When Claude calls an inbox tool, send the message to the inbox endpoint:
 
 ```python
 def handle_inbox_tool(tool_name, tool_input, user_email=None):
-    """Send a tool call to the agent-inbox endpoint."""
+    """Send a tool call to the agent.json endpoint."""
     if tool_name == "inbox_send_message":
         payload = {
             "from": {
@@ -168,11 +168,11 @@ See [Callbacks](/protocol/callbacks/) for how to verify the HMAC signature on yo
 
 ## MCP server
 
-You can also wrap agent-inbox as an [MCP server](https://modelcontextprotocol.io/) to make it available to any MCP-compatible client (Claude Desktop, Cursor, etc.):
+You can also wrap agent.json as an [MCP server](https://modelcontextprotocol.io/) to make it available to any MCP-compatible client (Claude Desktop, Cursor, etc.):
 
 ```typescript
 // Fetch discovery doc at startup, expose each action as an MCP tool
 // The MCP server translates tool calls into POST /.agent/inbox requests
 ```
 
-This turns any agent-inbox endpoint into a tool that Claude can use across all MCP-enabled interfaces.
+This turns any agent.json endpoint into a tool that Claude can use across all MCP-enabled interfaces.

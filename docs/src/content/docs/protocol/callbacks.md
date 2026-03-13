@@ -10,7 +10,7 @@ If the agent provides a `callback_url` when sending a message, responses are aut
 ```
 Agent sends message with callback_url
   -> Website owner responds
-    -> agent-inbox POSTs to callback_url with signed payload
+    -> agent.json POSTs to callback_url with signed payload
 ```
 
 ## Callback payload

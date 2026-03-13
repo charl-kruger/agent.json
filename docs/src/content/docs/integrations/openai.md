@@ -1,9 +1,9 @@
 ---
 title: OpenAI (GPTs & Assistants)
-description: Connect OpenAI models and GPTs to agent-inbox using function calling.
+description: Connect OpenAI models and GPTs to agent.json using function calling.
 ---
 
-OpenAI's function calling maps directly to agent-inbox actions. Each action becomes a function, and the parameters schema is already in JSON Schema format — exactly what OpenAI expects.
+OpenAI's function calling maps directly to agent.json actions. Each action becomes a function, and the parameters schema is already in JSON Schema format — exactly what OpenAI expects.
 
 ## Assistants API
 
@@ -50,7 +50,7 @@ assistant = client.beta.assistants.create(
 
 ```python
 def handle_inbox_function(function_name, arguments, user_email=None):
-    """Send a function call to the agent-inbox endpoint."""
+    """Send a function call to the agent.json endpoint."""
     payload = {
         "from": {
             "agent": "openai-assistant",
@@ -108,7 +108,7 @@ print(messages.data[0].content[0].text.value)
 
 ## Custom GPTs
 
-You can expose an agent-inbox endpoint as a Custom GPT action:
+You can expose an agent.json endpoint as a Custom GPT action:
 
 ### 1. Create an OpenAPI spec from the discovery document
 

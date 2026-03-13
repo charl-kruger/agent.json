@@ -1,6 +1,6 @@
 ---
 title: API Reference
-description: Complete API reference for agent-inbox endpoints.
+description: Complete API reference for agent.json endpoints.
 ---
 
 ## Endpoints

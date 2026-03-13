@@ -1265,7 +1265,7 @@ function InboxApp() {
     <div className="inbox-shell">
       <header className="inbox-header">
         <div>
-          <p className="inbox-eyebrow">agent-inbox</p>
+          <p className="inbox-eyebrow">agent.json</p>
           <h1 className="inbox-heading">Message Router</h1>
           <p className="inbox-subheading">
             AI-powered inbox for your website. Any agent can message you — the
@@ -1433,7 +1433,7 @@ export default function App() {
       <Suspense
         fallback={
           <div className="inbox-loading">
-            <Text>Loading agent-inbox...</Text>
+            <Text>Loading agent.json...</Text>
           </div>
         }
       >

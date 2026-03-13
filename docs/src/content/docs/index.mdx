@@ -1,9 +1,9 @@
 ---
-title: agent-inbox
+title: agent.json
 description: The open protocol that makes every website reachable by AI agents.
 template: splash
 hero:
-  tagline: "robots.txt told crawlers what to read. agent-inbox tells agents how to talk."
+  tagline: "robots.txt told crawlers what to read. agent.json tells agents how to talk."
   actions:
     - text: Read the Proposal
       link: /guides/introduction/
@@ -20,11 +20,11 @@ import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 Every major shift in the web created a new surface for interaction. HTML gave us pages. APIs gave us data. `robots.txt` gave us crawlability. Each was a small file that changed everything because it lowered the cost of the *first* interaction to zero.
 
-**agent-inbox** is that file for the agentic web. A single discovery document at `/.well-known/agent.json` that turns any website from a destination humans visit into a service agents can talk to — and get answers from.
+**agent.json** is that file for the agentic web. A single discovery document at `/.well-known/agent.json` that turns any website from a destination humans visit into a service agents can talk to — and get answers from.
 
 <CardGrid>
   <Card title="For website owners" icon="laptop">
-    You already have email routing. agent-inbox just adds a front door that AI agents can find. Define actions, set parameters, get messages routed to the right inbox. No API to build, no integration to maintain.
+    You already have email routing. agent.json just adds a front door that AI agents can find. Define actions, set parameters, get messages routed to the right inbox. No API to build, no integration to maintain.
   </Card>
   <Card title="For agent builders" icon="rocket">
     Stop scraping contact pages. Discover what any website accepts, call actions with validated parameters, and get structured responses back — all through one standard protocol.

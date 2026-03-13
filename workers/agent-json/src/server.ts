@@ -257,7 +257,7 @@ function buildEmailHtml(params: {
   </div>
   ${contentHtml}
   <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e0d8;">
-  <p style="font-size: 12px; color: #6b5a4c;">Routed by agent-inbox | Message ID: ${params.messageId}</p>
+  <p style="font-size: 12px; color: #6b5a4c;">Routed by agent.json | Message ID: ${params.messageId}</p>
 </body>
 </html>`;
 }
@@ -282,10 +282,10 @@ function buildEmailText(params: {
     const paramLines = Object.entries(params.structuredParams)
       .map(([key, value]) => `  ${key}: ${String(value)}`)
       .join("\n");
-    return `${header}Parameters:\n${paramLines}\n\n---\nRouted by agent-inbox | Message ID: ${params.messageId}`;
+    return `${header}Parameters:\n${paramLines}\n\n---\nRouted by agent.json | Message ID: ${params.messageId}`;
   }
 
-  return `${header}${params.subject ?? ""}\n\n${params.body ?? ""}\n\n---\nRouted by agent-inbox | Message ID: ${params.messageId}`;
+  return `${header}${params.subject ?? ""}\n\n${params.body ?? ""}\n\n---\nRouted by agent.json | Message ID: ${params.messageId}`;
 }
 
 // === InboxAgent Durable Object ===
@@ -919,8 +919,8 @@ export class InboxAgent extends AIChatAgent<Env> {
 
     try {
       const emailSubject = isStructured
-        ? `[agent-inbox] ${resolvedAction}: Action from ${msg.from.agent}`
-        : `[agent-inbox] ${resolvedAction}: ${subject ?? "(no subject)"}`;
+        ? `[agent.json] ${resolvedAction}: Action from ${msg.from.agent}`
+        : `[agent.json] ${resolvedAction}: ${subject ?? "(no subject)"}`;
 
       const emailResult = await this.env.EMAIL.send({
         to: targetEmail,
@@ -1109,7 +1109,7 @@ export class InboxAgent extends AIChatAgent<Env> {
 
     const result = streamText({
       model: workersAI(AI_MODEL),
-      system: `You are the agent-inbox copilot. You help the website owner understand and manage messages received from AI agents.
+      system: `You are the agent.json copilot. You help the website owner understand and manage messages received from AI agents.
 You have tools to query the inbox. Answer questions about message volume, actions, routing, and failures.
 Be concise and helpful. Format data in readable tables when appropriate.`,
       messages: pruneMessages({

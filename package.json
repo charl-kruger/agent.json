@@ -1,13 +1,13 @@
 {
-  "name": "agentpop",
+  "name": "agent.json",
   "version": "1.0.0",
   "private": true,
-  "description": "DNS for AI messages. Give your website an inbox that any agent can reach.",
+  "description": "The open protocol that makes every website reachable by AI agents.",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm --filter agent-inbox dev",
+    "dev": "pnpm --filter agent-json dev",
     "dev:docs": "pnpm --filter docs dev",
-    "deploy": "pnpm --filter agent-inbox deploy",
+    "deploy": "pnpm --filter agent-json deploy",
     "deploy:docs": "pnpm --filter docs deploy"
   }
 }

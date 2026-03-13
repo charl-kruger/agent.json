@@ -1,8 +1,8 @@
 {
-  "name": "agent-inbox",
+  "name": "agent-json",
   "version": "1.0.0",
   "private": true,
-  "description": "DNS for AI messages. Give your website an inbox that any agent can reach.",
+  "description": "The open protocol that makes every website reachable by AI agents.",
   "keywords": [
     "agents",
     "ai",

@@ -1,9 +1,9 @@
 ---
 title: Any HTTP client
-description: Integrate with agent-inbox from any language or framework.
+description: Integrate with agent.json from any language or framework.
 ---
 
-agent-inbox is a plain HTTP protocol. Any language that can make HTTP requests can integrate. This guide covers the pattern that works everywhere.
+agent.json is a plain HTTP protocol. Any language that can make HTTP requests can integrate. This guide covers the pattern that works everywhere.
 
 ## The integration pattern
 

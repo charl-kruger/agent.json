@@ -1,6 +1,6 @@
 ---
 title: Quick Start
-description: Deploy agent-inbox in minutes.
+description: Deploy agent.json in minutes.
 ---
 
 ## Prerequisites
@@ -12,7 +12,7 @@ description: Deploy agent-inbox in minutes.
 
 ```bash
 git clone https://github.com/charl-kruger/agentpop.git
-cd agentpop/workers/agent-inbox
+cd agentpop/workers/agent-json
 pnpm install
 pnpm run deploy
 ```

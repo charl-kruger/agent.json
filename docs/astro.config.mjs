@@ -6,13 +6,13 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
 	integrations: [
 		starlight({
-			title: 'agent-inbox',
+			title: 'agent.json',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/charl-kruger/agentpop' }],
 			sidebar: [
 				{
 					label: 'Getting Started',
 					items: [
-						{ label: 'Why agent-inbox', slug: 'guides/introduction' },
+						{ label: 'Why agent.json', slug: 'guides/introduction' },
 						{ label: 'Quick Start', slug: 'guides/quickstart' },
 					],
 				},
