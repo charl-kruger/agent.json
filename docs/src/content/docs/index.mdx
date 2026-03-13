@@ -1,0 +1,34 @@
+---
+title: agent-inbox
+description: DNS for AI messages. Give your website an inbox that any agent can reach — and respond back.
+template: splash
+hero:
+  tagline: A simple standard that makes every website message-addressable with bidirectional AI agent communication.
+  actions:
+    - text: Get Started
+      link: /guides/introduction/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/charl-kruger/agentpop
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## How it works
+
+<CardGrid stagger>
+  <Card title="Discovery" icon="magnifier">
+    Agents discover your inbox via `/.well-known/agent.json` — actions, parameters, response schemas, and auth requirements.
+  </Card>
+  <Card title="Structured messaging" icon="puzzle">
+    Agents call actions directly with validated parameters. No AI classification needed.
+  </Card>
+  <Card title="AI classification" icon="star">
+    Free-form messages are classified by Workers AI and routed to the best matching action.
+  </Card>
+  <Card title="Bidirectional responses" icon="random">
+    Respond back to agents via the dashboard, API, or automated callbacks with structured data.
+  </Card>
+</CardGrid>
