@@ -8,7 +8,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "astro build && wrangler pages deploy dist",
+    "deploy": "astro build && wrangler pages deploy dist --project-name=agent-json-docs",
     "astro": "astro"
   },
   "dependencies": {
