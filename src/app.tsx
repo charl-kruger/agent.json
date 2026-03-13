@@ -1,4 +1,5 @@
 import {
+  Fragment,
   Suspense,
   startTransition,
   useEffect,
@@ -34,16 +35,17 @@ import {
   CopyIcon
 } from "@phosphor-icons/react";
 import type {
+  ActionConfig,
+  ActionParameter,
   Dashboard,
   InboxConfig,
   InboxMessageDetail,
-  InboxMessageSummary,
-  RouteConfig
+  InboxMessageSummary
 } from "./types";
 
 type InboxEvent = {
   type: "inbox-updated";
-  event: "message-routed" | "route-changed";
+  event: "message-routed" | "action-changed" | "message-responded";
   messageId?: string;
 };
 
@@ -52,7 +54,7 @@ type ActiveTab = "dashboard" | "config" | "chat";
 const STARTER_PROMPTS = [
   "How many messages were routed today?",
   "Show me any failed deliveries.",
-  "What are the most common intents?",
+  "What are the most common actions?",
   "Which agents are messaging me most?"
 ];
 
@@ -65,14 +67,14 @@ function formatTimestamp(value: string): string {
 
 function statusColor(
   status: InboxMessageSummary["status"]
-): "routed" | "failed" | "classifying" | "received" {
+): string {
   return status;
 }
 
 function statusTone(
   status: InboxMessageSummary["status"]
 ): "primary" | "secondary" | "destructive" {
-  if (status === "routed") return "primary";
+  if (status === "routed" || status === "responded") return "primary";
   if (status === "failed") return "destructive";
   return "secondary";
 }
@@ -106,15 +108,17 @@ function MessageListItem({
         />
       </div>
       <p className="inbox-title" style={{ fontSize: "0.92rem" }}>
-        {message.subject}
+        {message.action ? `Action: ${message.action}` : message.subject}
       </p>
       <p className="inbox-muted" style={{ marginTop: "0.35rem" }}>
-        {message.body}
+        {message.action && message.parameters
+          ? Object.entries(message.parameters).map(([k, v]) => `${k}: ${String(v)}`).join(", ")
+          : message.body}
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge variant={statusTone(message.status)}>{message.status}</Badge>
-        {message.classifiedIntent && (
-          <Badge variant="secondary">{message.classifiedIntent}</Badge>
+        {message.classifiedAction && (
+          <Badge variant="secondary">{message.classifiedAction}</Badge>
         )}
         {message.priority !== "normal" && (
           <Badge variant="secondary">{message.priority}</Badge>
@@ -124,12 +128,92 @@ function MessageListItem({
   );
 }
 
+// --- Respond form ---
+
+function RespondForm({
+  onRespond,
+  busy
+}: {
+  onRespond: (body: string, structuredData?: Record<string, unknown>) => Promise<void>;
+  busy: boolean;
+}) {
+  const [responseBody, setResponseBody] = useState("");
+  const [showJson, setShowJson] = useState(false);
+  const [jsonData, setJsonData] = useState("");
+
+  return (
+    <div
+      style={{
+        display: "grid",
+        gap: "0.6rem",
+        padding: "1rem",
+        borderRadius: "1rem",
+        background: "rgba(240, 244, 248, 0.6)",
+        border: `1px solid var(--inbox-border)`
+      }}
+    >
+      <Text size="sm" bold>Respond to Message</Text>
+      <textarea
+        className="inbox-input"
+        value={responseBody}
+        onChange={(e) => setResponseBody(e.target.value)}
+        placeholder="Type your response..."
+        rows={3}
+        style={{ resize: "vertical" }}
+      />
+      <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.82rem" }}>
+        <input
+          type="checkbox"
+          checked={showJson}
+          onChange={(e) => setShowJson(e.target.checked)}
+        />
+        Include structured data (JSON)
+      </label>
+      {showJson && (
+        <textarea
+          className="inbox-input"
+          value={jsonData}
+          onChange={(e) => setJsonData(e.target.value)}
+          placeholder='{"refund_id": "ref_123", "amount": 29.99}'
+          rows={3}
+          style={{ resize: "vertical", fontFamily: "'JetBrains Mono', monospace", fontSize: "0.82rem" }}
+        />
+      )}
+      <Button
+        variant="primary"
+        size="sm"
+        disabled={busy || (responseBody.trim().length === 0 && jsonData.trim().length === 0)}
+        onClick={async () => {
+          let structured: Record<string, unknown> | undefined;
+          if (showJson && jsonData.trim().length > 0) {
+            try {
+              structured = JSON.parse(jsonData) as Record<string, unknown>;
+            } catch {
+              return; // Invalid JSON, don't submit
+            }
+          }
+          await onRespond(responseBody.trim(), structured);
+          setResponseBody("");
+          setJsonData("");
+        }}
+      >
+        <PaperPlaneRightIcon size={14} className="mr-1" />
+        Send Response
+      </Button>
+    </div>
+  );
+}
+
 // --- Message detail ---
 
 function DetailView({
-  message
+  message,
+  onRespond,
+  busy
 }: {
   message: InboxMessageDetail | null;
+  onRespond: (messageId: string, body: string, structuredData?: Record<string, unknown>) => Promise<void>;
+  busy: boolean;
 }) {
   if (message === null) {
     return (
@@ -169,17 +253,17 @@ function DetailView({
       <section className="inbox-section">
         <h3 className="inbox-section-title">Routing</h3>
         <div className="inbox-meta-grid">
-          <span className="inbox-meta-key">Classified Intent</span>
+          <span className="inbox-meta-key">Classified Action</span>
           <span className="inbox-meta-value">
-            {message.classifiedIntent ?? "pending"}
-            {message.intentConfidence !== null &&
-              ` (${Math.round(message.intentConfidence * 100)}%)`}
+            {message.classifiedAction ?? "pending"}
+            {message.actionConfidence !== null &&
+              ` (${Math.round(message.actionConfidence * 100)}%)`}
           </span>
-          {message.declaredIntent && (
+          {message.action && (
             <>
-              <span className="inbox-meta-key">Declared Intent</span>
+              <span className="inbox-meta-key">Action (structured)</span>
               <span className="inbox-meta-value">
-                {message.declaredIntent}
+                {message.action}
               </span>
             </>
           )}
@@ -216,10 +300,24 @@ function DetailView({
         </section>
       )}
 
-      <section className="inbox-section">
-        <h3 className="inbox-section-title">Message Body</h3>
-        <pre className="inbox-body-preview">{message.body}</pre>
-      </section>
+      {message.action && message.parameters && Object.keys(message.parameters).length > 0 ? (
+        <section className="inbox-section">
+          <h3 className="inbox-section-title">Parameters</h3>
+          <div className="inbox-meta-grid">
+            {Object.entries(message.parameters).map(([key, value]) => (
+              <Fragment key={key}>
+                <span className="inbox-meta-key">{key}</span>
+                <span className="inbox-meta-value">{String(value)}</span>
+              </Fragment>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="inbox-section">
+          <h3 className="inbox-section-title">Message Body</h3>
+          <pre className="inbox-body-preview">{message.body}</pre>
+        </section>
+      )}
 
       {Object.keys(message.metadata).length > 0 && (
         <section className="inbox-section">
@@ -229,26 +327,100 @@ function DetailView({
           </pre>
         </section>
       )}
+
+      {/* Response history */}
+      {message.responses.length > 0 && (
+        <section className="inbox-section">
+          <h3 className="inbox-section-title">Responses</h3>
+          <div style={{ display: "grid", gap: "0.6rem" }}>
+            {message.responses.map((resp) => (
+              <div key={resp.id} className="inbox-response-card">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span style={{ fontSize: "0.8rem", fontWeight: 600 }}>
+                    {resp.respondedBy}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <Badge
+                      variant={
+                        resp.status === "delivered"
+                          ? "primary"
+                          : resp.status === "failed"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {resp.status}
+                    </Badge>
+                    <span className="inbox-muted" style={{ fontSize: "0.75rem" }}>
+                      {formatTimestamp(resp.createdAt)}
+                    </span>
+                  </div>
+                </div>
+                {resp.body && (
+                  <p style={{ margin: "0.3rem 0", fontSize: "0.88rem", lineHeight: 1.5 }}>
+                    {resp.body}
+                  </p>
+                )}
+                {Object.keys(resp.structuredData).length > 0 && (
+                  <pre
+                    style={{
+                      margin: "0.3rem 0 0",
+                      fontSize: "0.78rem",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      background: "rgba(240, 244, 248, 0.7)",
+                      padding: "0.5rem 0.75rem",
+                      borderRadius: "0.5rem",
+                      whiteSpace: "pre-wrap",
+                      overflowWrap: "anywhere"
+                    }}
+                  >
+                    {JSON.stringify(resp.structuredData, null, 2)}
+                  </pre>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Respond form — show when message is routed or already responded */}
+      {(message.status === "routed" || message.status === "responded") && (
+        <section className="inbox-section">
+          <RespondForm
+            onRespond={(body, structured) =>
+              onRespond(message.id, body, structured)
+            }
+            busy={busy}
+          />
+        </section>
+      )}
     </Surface>
   );
 }
 
 // --- Config panel ---
 
+const EMPTY_PARAM: ActionParameter = {
+  name: "",
+  type: "string",
+  description: "",
+  required: false
+};
+
 function ConfigPanel({
   config,
-  routes,
+  actions,
   onSaveConfig,
-  onAddRoute,
-  onRemoveRoute,
+  onAddAction,
+  onRemoveAction,
   onRegenerateToken,
   busy
 }: {
   config: InboxConfig;
-  routes: RouteConfig[];
+  actions: ActionConfig[];
   onSaveConfig: (config: Omit<InboxConfig, "authToken">) => Promise<void>;
-  onAddRoute: (route: RouteConfig) => Promise<void>;
-  onRemoveRoute: (intent: string) => Promise<void>;
+  onAddAction: (action: ActionConfig) => Promise<void>;
+  onRemoveAction: (name: string) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
   busy: boolean;
 }) {
@@ -262,10 +434,12 @@ function ConfigPanel({
     String(config.rateLimitPerMinute)
   );
 
-  const [newIntent, setNewIntent] = useState("");
+  const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newAutoReply, setNewAutoReply] = useState("");
+  const [newParams, setNewParams] = useState<ActionParameter[]>([]);
+  const [newRespSchema, setNewRespSchema] = useState<ActionParameter[]>([]);
 
   useEffect(() => {
     setDomain(config.domain);
@@ -274,6 +448,26 @@ function ConfigPanel({
     setSiteDescription(config.siteDescription);
     setRateLimit(String(config.rateLimitPerMinute));
   }, [config]);
+
+  function updateParam(index: number, patch: Partial<ActionParameter>) {
+    setNewParams((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, ...patch } : p))
+    );
+  }
+
+  function removeParam(index: number) {
+    setNewParams((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function updateRespField(index: number, patch: Partial<ActionParameter>) {
+    setNewRespSchema((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, ...patch } : p))
+    );
+  }
+
+  function removeRespField(index: number) {
+    setNewRespSchema((prev) => prev.filter((_, i) => i !== index));
+  }
 
   return (
     <div style={{ display: "grid", gap: "2rem", maxWidth: "50rem" }}>
@@ -386,30 +580,50 @@ function ConfigPanel({
 
       <Surface className="inbox-panel" style={{ padding: "1.5rem" }}>
         <h2 className="inbox-title" style={{ marginBottom: "0.5rem" }}>
-          Intent Routes
+          Actions
         </h2>
         <p className="inbox-muted" style={{ marginBottom: "1rem" }}>
-          Map message intents to email addresses. The AI will classify incoming
-          messages and route them to the matching email.
+          Define callable actions with parameter schemas. Agents can call actions
+          directly with structured parameters, or send free-form messages that
+          the AI classifies.
         </p>
 
         <div className="inbox-route-list" style={{ marginBottom: "1.5rem" }}>
-          {routes.length === 0 && (
+          {actions.length === 0 && (
             <p className="inbox-muted">
-              No routes configured. Add your first route below.
+              No actions configured. Add your first action below.
             </p>
           )}
-          {routes.map((route) => (
-            <div key={route.intent} className="inbox-route-card">
+          {actions.map((action) => (
+            <div key={action.name} className="inbox-route-card">
               <div className="inbox-route-info">
-                <p className="inbox-label">{route.intent}</p>
+                <p className="inbox-label">{action.name}</p>
                 <p className="inbox-muted">
-                  {route.email} — {route.description}
+                  {action.email} — {action.description}
                 </p>
-                {route.autoReply && (
+                {action.autoReply && (
                   <p className="inbox-muted" style={{ fontStyle: "italic" }}>
-                    Auto-reply: {route.autoReply}
+                    Auto-reply: {action.autoReply}
                   </p>
+                )}
+                {action.parameters.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {action.parameters.map((p) => (
+                      <span key={p.name} className="inbox-chip inbox-chip-accent">
+                        {p.name}: {p.type}{p.required ? " *" : ""}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {action.responseSchema.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    <span style={{ fontSize: "0.72rem", color: "var(--inbox-muted)", fontWeight: 600 }}>Response:</span>
+                    {action.responseSchema.map((p) => (
+                      <span key={p.name} className="inbox-chip inbox-chip-success">
+                        {p.name}: {p.type}{p.required ? " *" : ""}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
               <Button
@@ -418,8 +632,8 @@ function ConfigPanel({
                 shape="square"
                 icon={<TrashIcon size={16} />}
                 disabled={busy}
-                onClick={() => void onRemoveRoute(route.intent)}
-                aria-label={`Remove ${route.intent} route`}
+                onClick={() => void onRemoveAction(action.name)}
+                aria-label={`Remove ${action.name} action`}
               />
             </div>
           ))}
@@ -436,14 +650,14 @@ function ConfigPanel({
           }}
         >
           <Text size="sm" bold>
-            Add Route
+            Add Action
           </Text>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
             <input
               className="inbox-input"
-              value={newIntent}
-              onChange={(e) => setNewIntent(e.target.value)}
-              placeholder="Intent (e.g. refund)"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Action name (e.g. request_refund)"
             />
             <input
               className="inbox-input"
@@ -456,7 +670,7 @@ function ConfigPanel({
             className="inbox-input"
             value={newDescription}
             onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Description (e.g. Product returns and refund requests)"
+            placeholder="Description (e.g. Request a refund for an order)"
           />
           <input
             className="inbox-input"
@@ -464,30 +678,193 @@ function ConfigPanel({
             onChange={(e) => setNewAutoReply(e.target.value)}
             placeholder="Auto-reply (optional)"
           />
+
+          {newParams.length > 0 && (
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Text size="xs" bold>Parameters</Text>
+              {newParams.map((param, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto 1fr auto auto",
+                    gap: "0.4rem",
+                    alignItems: "center"
+                  }}
+                >
+                  <input
+                    className="inbox-input"
+                    value={param.name}
+                    onChange={(e) => updateParam(index, { name: e.target.value })}
+                    placeholder="Name"
+                  />
+                  <select
+                    className="inbox-input"
+                    value={param.type}
+                    onChange={(e) =>
+                      updateParam(index, {
+                        type: e.target.value as ActionParameter["type"]
+                      })
+                    }
+                  >
+                    <option value="string">string</option>
+                    <option value="number">number</option>
+                    <option value="boolean">boolean</option>
+                  </select>
+                  <input
+                    className="inbox-input"
+                    value={param.description}
+                    onChange={(e) =>
+                      updateParam(index, { description: e.target.value })
+                    }
+                    placeholder="Description"
+                  />
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
+                      fontSize: "0.8rem"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={param.required}
+                      onChange={(e) =>
+                        updateParam(index, { required: e.target.checked })
+                      }
+                    />
+                    Req
+                  </label>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    shape="square"
+                    icon={<TrashIcon size={14} />}
+                    onClick={() => removeParam(index)}
+                    aria-label="Remove parameter"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setNewParams((prev) => [...prev, { ...EMPTY_PARAM }])}
+          >
+            <PlusIcon size={14} className="mr-1" />
+            Add Parameter
+          </Button>
+
+          {newRespSchema.length > 0 && (
+            <div style={{ display: "grid", gap: "0.5rem" }}>
+              <Text size="xs" bold>Response Schema</Text>
+              {newRespSchema.map((field, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto 1fr auto auto",
+                    gap: "0.4rem",
+                    alignItems: "center"
+                  }}
+                >
+                  <input
+                    className="inbox-input"
+                    value={field.name}
+                    onChange={(e) => updateRespField(index, { name: e.target.value })}
+                    placeholder="Name"
+                  />
+                  <select
+                    className="inbox-input"
+                    value={field.type}
+                    onChange={(e) =>
+                      updateRespField(index, {
+                        type: e.target.value as ActionParameter["type"]
+                      })
+                    }
+                  >
+                    <option value="string">string</option>
+                    <option value="number">number</option>
+                    <option value="boolean">boolean</option>
+                  </select>
+                  <input
+                    className="inbox-input"
+                    value={field.description}
+                    onChange={(e) =>
+                      updateRespField(index, { description: e.target.value })
+                    }
+                    placeholder="Description"
+                  />
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.25rem",
+                      fontSize: "0.8rem"
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={field.required}
+                      onChange={(e) =>
+                        updateRespField(index, { required: e.target.checked })
+                      }
+                    />
+                    Req
+                  </label>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    shape="square"
+                    icon={<TrashIcon size={14} />}
+                    onClick={() => removeRespField(index)}
+                    aria-label="Remove response field"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setNewRespSchema((prev) => [...prev, { ...EMPTY_PARAM }])}
+          >
+            <PlusIcon size={14} className="mr-1" />
+            Add Response Field
+          </Button>
+
           <Button
             variant="primary"
             size="sm"
             disabled={
               busy ||
-              newIntent.trim().length === 0 ||
+              newName.trim().length === 0 ||
               newEmail.trim().length === 0 ||
               newDescription.trim().length === 0
             }
             onClick={async () => {
-              await onAddRoute({
-                intent: newIntent.trim(),
+              await onAddAction({
+                name: newName.trim(),
                 email: newEmail.trim(),
                 autoReply: newAutoReply.trim() || null,
-                description: newDescription.trim()
+                description: newDescription.trim(),
+                parameters: newParams.filter((p) => p.name.trim().length > 0),
+                responseSchema: newRespSchema.filter((p) => p.name.trim().length > 0)
               });
-              setNewIntent("");
+              setNewName("");
               setNewEmail("");
               setNewDescription("");
               setNewAutoReply("");
+              setNewParams([]);
+              setNewRespSchema([]);
             }}
           >
             <PlusIcon size={14} className="mr-1" />
-            Add Route
+            Add Action
           </Button>
         </div>
       </Surface>
@@ -538,7 +915,7 @@ function ChatPanel({
             </Text>
           </div>
           <p className="inbox-muted">
-            Ask questions about your inbox — message volume, intents, routing
+            Ask questions about your inbox — message volume, actions, routing
             status, and more.
           </p>
         </div>
@@ -732,11 +1109,13 @@ function InboxApp() {
   });
 
   const handleInboxEvent = useEffectEvent((event: InboxEvent) => {
+    const titles: Record<string, string> = {
+      "message-routed": "New message routed",
+      "message-responded": "Response sent",
+      "action-changed": "Actions updated"
+    };
     toasts.add({
-      title:
-        event.event === "message-routed"
-          ? "New message routed"
-          : "Routes updated",
+      title: titles[event.event] ?? "Inbox updated",
       description: event.messageId ?? "Inbox state changed"
     });
     void refreshDashboard();
@@ -796,37 +1175,37 @@ function InboxApp() {
     }
   }
 
-  async function handleAddRoute(route: RouteConfig): Promise<void> {
+  async function handleAddAction(action: ActionConfig): Promise<void> {
     setBusy(true);
     try {
-      await agent.call("addRoute", [route]);
+      await agent.call("addAction", [action]);
       await refreshDashboard();
       toasts.add({
-        title: "Route added",
-        description: `Intent "${route.intent}" → ${route.email}`
+        title: "Action added",
+        description: `"${action.name}" → ${action.email}`
       });
     } catch (error) {
       const desc =
-        error instanceof Error ? error.message : "Add route failed";
-      toasts.add({ title: "Add route failed", description: desc });
+        error instanceof Error ? error.message : "Add action failed";
+      toasts.add({ title: "Add action failed", description: desc });
     } finally {
       setBusy(false);
     }
   }
 
-  async function handleRemoveRoute(intent: string): Promise<void> {
+  async function handleRemoveAction(name: string): Promise<void> {
     setBusy(true);
     try {
-      await agent.call("removeRoute", [intent]);
+      await agent.call("removeAction", [name]);
       await refreshDashboard();
       toasts.add({
-        title: "Route removed",
-        description: `Removed intent "${intent}"`
+        title: "Action removed",
+        description: `Removed action "${name}"`
       });
     } catch (error) {
       const desc =
-        error instanceof Error ? error.message : "Remove route failed";
-      toasts.add({ title: "Remove route failed", description: desc });
+        error instanceof Error ? error.message : "Remove action failed";
+      toasts.add({ title: "Remove action failed", description: desc });
     } finally {
       setBusy(false);
     }
@@ -845,6 +1224,29 @@ function InboxApp() {
       const desc =
         error instanceof Error ? error.message : "Token generation failed";
       toasts.add({ title: "Token failed", description: desc });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRespondToMessage(
+    messageId: string,
+    body: string,
+    structuredData?: Record<string, unknown>
+  ): Promise<void> {
+    setBusy(true);
+    try {
+      await agent.call("respondToMessage", [{ messageId, body: body || undefined, structuredData }]);
+      await loadMessage(messageId);
+      await refreshDashboard();
+      toasts.add({
+        title: "Response sent",
+        description: "Your response has been recorded."
+      });
+    } catch (error) {
+      const desc =
+        error instanceof Error ? error.message : "Respond failed";
+      toasts.add({ title: "Respond failed", description: desc });
     } finally {
       setBusy(false);
     }
@@ -943,17 +1345,17 @@ function InboxApp() {
             </Surface>
           </section>
 
-          {overview && overview.topIntents.length > 0 && (
+          {overview && overview.topActions.length > 0 && (
             <div
               className="mb-4 flex flex-wrap gap-2"
               style={{ marginBottom: "1rem" }}
             >
               <Text size="xs" variant="secondary" bold>
-                Top intents:
+                Top actions:
               </Text>
-              {overview.topIntents.map((ti) => (
-                <span key={ti.intent} className="inbox-chip inbox-chip-accent">
-                  {ti.intent} ({ti.count})
+              {overview.topActions.map((ta) => (
+                <span key={ta.action} className="inbox-chip inbox-chip-accent">
+                  {ta.action} ({ta.count})
                 </span>
               ))}
             </div>
@@ -989,7 +1391,11 @@ function InboxApp() {
               </div>
             </Surface>
 
-            <DetailView message={selectedMessage} />
+            <DetailView
+              message={selectedMessage}
+              onRespond={handleRespondToMessage}
+              busy={busy}
+            />
           </main>
         </>
       )}
@@ -997,10 +1403,10 @@ function InboxApp() {
       {activeTab === "config" && dashboard && (
         <ConfigPanel
           config={dashboard.config}
-          routes={dashboard.routes}
+          actions={dashboard.actions}
           onSaveConfig={handleSaveConfig}
-          onAddRoute={handleAddRoute}
-          onRemoveRoute={handleRemoveRoute}
+          onAddAction={handleAddAction}
+          onRemoveAction={handleRemoveAction}
           onRegenerateToken={handleRegenerateToken}
           busy={busy}
         />
