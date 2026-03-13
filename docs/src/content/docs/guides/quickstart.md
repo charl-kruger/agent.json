@@ -11,8 +11,8 @@ description: Deploy agent.json in minutes.
 ## Deploy
 
 ```bash
-git clone https://github.com/charl-kruger/agentpop.git
-cd agentpop/workers/agent-json
+git clone https://github.com/charl-kruger/agent.json.git
+cd agent.json/workers/agent-json
 pnpm install
 pnpm run deploy
 ```

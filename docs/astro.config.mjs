@@ -7,7 +7,7 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'agent.json',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/charl-kruger/agentpop' }],
+			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/charl-kruger/agent.json' }],
 			sidebar: [
 				{
 					label: 'Getting Started',
