@@ -14,6 +14,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Why agent.json', slug: 'guides/introduction' },
 						{ label: 'Quick Start', slug: 'guides/quickstart' },
+						{ label: 'Reference Application', slug: 'guides/reference-app' },
 					],
 				},
 				{
