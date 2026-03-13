@@ -4,7 +4,7 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://docs.agent-json.com',
+	site: 'https://agent-json.com',
 	integrations: [
 		starlight({
 			title: 'agent.json',
